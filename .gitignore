@@ -1,0 +1,16 @@
+# venv
+.venv/
+
+# python cache
+__pycache__/
+*.pyc
+
+# idea/pycharm
+.idea/
+
+# pytest cache
+.pytest_cache/
+
+# allure (на будущее)
+allure-results/
+allure-report/
