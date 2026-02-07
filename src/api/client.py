@@ -19,40 +19,26 @@ class ApiClient:
         self.session = requests.Session()
         self.session.headers.update({'Accept': 'application/json'})
 
-    def get(self, url:str, params:dict=None, raise_for_status: bool = True) -> requests.Response:
-        response = self.session.get(url, params=params, timeout=self.timeout)
-        _attach_allure(url, response, params=params)
-        if raise_for_status:
-            response.raise_for_status()
-        return response
+    def set_bearer_token(self, token:str):
+        self.session.headers.update({f'Authorization': f'Bearer {token}'})
 
-    def post(self, url:str, json:dict | None = None, raise_for_status: bool = True) -> requests.Response:
-        response = self.session.post(url, json=json, timeout=self.timeout)
-        _attach_allure(url, response, json=json)
-        if raise_for_status:
-            response.raise_for_status()
-        return response
-
-    @staticmethod
-    def json(response:requests.Response):
-        if response.status_code == 204:
-            return None
-        if response.text.strip() == "":
-            return None
-        try:
-            return response.json()
-        except Exception as e:
-            raise AssertionError(f'Response is not json: status={response.status_code}, response={response.text[:200]}') from e
-
-    def get_json(self, path:str, params:dict=None, raise_for_status:bool = True):
+    def request(self,
+                method: str,
+                path: str,
+                params: dict | None = None,
+                json: dict | None = None,
+                headers: dict | None = None,
+                ) -> requests.Response:
         url = f'{self.base_url}/{path.lstrip("/")}'
-        response = self.get(url, params=params, raise_for_status=raise_for_status)
-        return ApiClient.json(response)
+        return self.session.request(method=method, url=url, params=params, json=json, headers=headers, timeout=self.timeout)
 
-    def post_json(self, path:str, json:dict | None = None, raise_for_status:bool = True):
-        url = f'{self.base_url}/{path.lstrip("/")}'
-        response = self.post(url, json=json, raise_for_status=raise_for_status)
-        return ApiClient.json(response)
+    def request_json(self,
+                     method: str,
+                     path: str,
+                     **kwargs):
+        response = self.request(method=method, path=path, **kwargs)
+        response.raise_for_status()
+        return response.json()
 
     def close_session(self):
         self.session.close()
