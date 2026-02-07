@@ -17,12 +17,10 @@ def pytest_addoption(parser):
     )
 
 @pytest.fixture
-def user_data():
-    return {'name': 'Ivan', 'age': 25}
-
-
-@pytest.fixture
 def api_client(request):
     base_url = request.config.getoption('--base-url')
     timeout = request.config.getoption('--timeout')
-    return ApiClient(base_url=base_url, timeout=timeout)
+    client = ApiClient(base_url=base_url, timeout=timeout)
+    yield client
+    client.close_session()
+

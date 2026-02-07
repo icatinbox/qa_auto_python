@@ -7,7 +7,7 @@ def _attach_allure(url:str, response: requests.Response, json: dict | None = Non
     if params is not None:
         allure.attach(str(params), name='Request params', attachment_type=allure.attachment_type.TEXT)
     if json is not None:
-        allure.attach(str(json), name='Request params', attachment_type=allure.attachment_type.TEXT)
+        allure.attach(str(json), name='Request json', attachment_type=allure.attachment_type.TEXT)
     allure.attach(str(response.status_code), name='Response status', attachment_type=allure.attachment_type.TEXT)
     allure.attach(str(response.text[:2000]), name='Response body first 2000 chars', attachment_type=allure.attachment_type.TEXT)
 
@@ -53,3 +53,6 @@ class ApiClient:
         url = f'{self.base_url}/{path.lstrip("/")}'
         response = self.post(url, json=json, raise_for_status=raise_for_status)
         return ApiClient.json(response)
+
+    def close_session(self):
+        self.session.close()
