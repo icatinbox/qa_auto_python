@@ -1,16 +1,50 @@
-def test_auth_token(auth_token):
-    assert auth_token is not None
-    assert isinstance(auth_token, str)
+import pytest
 
-def test_refresh_token(refresh_token):
+def test_auth_token(tokens):
+    access_token = tokens['access']
+    assert access_token is not None
+    assert isinstance(access_token, str)
+
+def test_refresh_token(tokens):
+    refresh_token = tokens['refresh']
     assert refresh_token is not None
     assert isinstance(refresh_token, str)
 
+def test_me_request_auth(api_auth_auth, request):
+    username = request.config.getoption('--username')
+    data = api_auth_auth.me()
+    assert data['username'] == username
+
+def test_success_refresh_token(api_auth_auth, tokens):
+    refresh_token = tokens['refresh']
+    data = api_auth_auth.refresh(refresh_token)
+    assert data['accessToken'] is not None
+    assert isinstance(data['accessToken'], str)
+    assert data['refreshToken'] is not None
+    assert isinstance(data['refreshToken'], str)
+
+@pytest.mark.xfail
+@pytest.mark.negative
+def test_success_refresh_token(client_auth):
+    payload = {'refresh_token': 'invalid'}
+    response = client_auth.request('POST', path='/auth/refresh', json=payload)
+    assert response.status_code == 400
+
+@pytest.mark.negative
 def test_me_request_no_auth(api_client):
     response = api_client.request('GET', '/auth/me')
     assert response.status_code == 401
 
-def test_me_request_auth(client_auth, request):
+@pytest.mark.negative
+def test_auth_with_incorrect_username(api_client, request):
+    password = request.config.getoption('--password')
+    payload = {'username': 'invalid', 'password': password}
+    response = api_client.request('POST', '/auth/login', json=payload)
+    assert response.status_code == 400
+
+@pytest.mark.negative
+def test_auth_with_incorrect_password(api_client, request):
     username = request.config.getoption('--username')
-    data = client_auth.request_json('GET', '/auth/me')
-    assert data['username'] == username
+    payload = {'username': username, 'password': 'invalid'}
+    response = api_client.request('POST', '/auth/login', json=payload)
+    assert response.status_code == 400

@@ -1,7 +1,6 @@
 import requests
 import allure
 
-
 def _attach_allure(url:str, response: requests.Response, json: dict | None = None, params: dict | None = None):
     allure.attach(url, name='requests URL', attachment_type=allure.attachment_type.TEXT)
     if params is not None:
@@ -11,9 +10,8 @@ def _attach_allure(url:str, response: requests.Response, json: dict | None = Non
     allure.attach(str(response.status_code), name='Response status', attachment_type=allure.attachment_type.TEXT)
     allure.attach(str(response.text[:2000]), name='Response body first 2000 chars', attachment_type=allure.attachment_type.TEXT)
 
-
 class ApiClient:
-    def __init__(self, base_url:str, timeout:int=10):
+    def __init__(self, base_url:str, timeout):
         self.base_url = base_url.rstrip('/')
         self.timeout = timeout
         self.session = requests.Session()
