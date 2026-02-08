@@ -35,22 +35,19 @@ def api_client(request):
     client.close_session()
 
 @pytest.fixture
-def auth_token(api_client, request):
+def tokens(api_client, request):
     email = request.config.getoption('--username')
     password = request.config.getoption('--password')
-    auth = ApiAuth(api_client, email, password)
-    data = auth.login()
-    return data['accessToken']
-
-@pytest.fixture
-def refresh_token(api_client, request):
-    email = request.config.getoption('--username')
-    password = request.config.getoption('--password')
-    auth = ApiAuth(api_client, email, password)
-    data = auth.login()
-    return data['refreshToken']
+    auth = ApiAuth(api_client)
+    data = auth.login(email, password)
+    return {'access': data['accessToken'], 'refresh': data['refreshToken']}
 
 @pytest.fixture()
-def client_auth(api_client, auth_token):
-    api_client.set_bearer_token(auth_token)
+def client_auth(api_client, tokens):
+    api_client.set_bearer_token(tokens['access'])
     return api_client
+
+@pytest.fixture()
+def api_auth_auth(api_client, tokens):
+    api_client.set_bearer_token(tokens['access'])
+    return ApiAuth(api_client)
