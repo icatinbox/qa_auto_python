@@ -1,3 +1,5 @@
+import random
+
 import pytest
 from src.api.ApiAuth.api_auth import ApiAuth
 from src.api.ApiProducts.api_products import ApiProducts
@@ -60,3 +62,9 @@ def api_auth_products(client_auth):
 def id_product(api_auth_products):
     data = api_auth_products.get_all_products(params={'limit': 1})
     return data['products'][0]['id']
+
+# делает каждый раз новый запрос, надо оптимизировать
+@pytest.fixture
+def total_product(api_auth_products):
+    data = api_auth_products.get_all_products()
+    return data['total']
