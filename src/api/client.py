@@ -36,7 +36,7 @@ class ApiClient:
                      **kwargs):
         response = self.request(method=method, path=path, **kwargs)
         response.raise_for_status()
-        return response.json()
+        return response, response.json()
 
     def close_session(self):
         self.session.close()
