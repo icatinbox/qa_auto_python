@@ -1,5 +1,6 @@
 import pytest
 from src.api.ApiAuth.api_auth import ApiAuth
+from src.api.ApiProducts.api_products import ApiProducts
 from src.api.client import ApiClient
 
 def pytest_addoption(parser):
@@ -42,12 +43,20 @@ def tokens(api_client, request):
     data = auth.login(email, password)
     return {'access': data['accessToken'], 'refresh': data['refreshToken']}
 
-@pytest.fixture()
+@pytest.fixture
 def client_auth(api_client, tokens):
     api_client.set_bearer_token(tokens['access'])
     return api_client
 
-@pytest.fixture()
-def api_auth_auth(api_client, tokens):
-    api_client.set_bearer_token(tokens['access'])
-    return ApiAuth(api_client)
+@pytest.fixture
+def api_auth_auth(client_auth):
+    return ApiAuth(client_auth)
+
+@pytest.fixture
+def api_auth_products(client_auth):
+    return ApiProducts(client_auth)
+
+@pytest.fixture
+def id_product(api_auth_products):
+    data = api_auth_products.get_all_products(params={'limit': 1})
+    return data['products'][0]['id']
