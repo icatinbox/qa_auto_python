@@ -1,3 +1,5 @@
+import random
+
 import pytest
 from src.api.ApiAuth.api_auth import ApiAuth
 from src.api.ApiProducts.api_products import ApiProducts
@@ -40,7 +42,7 @@ def tokens(api_client, request):
     email = request.config.getoption('--username')
     password = request.config.getoption('--password')
     auth = ApiAuth(api_client)
-    data = auth.login(email, password)
+    _, data = auth.login(email, password)
     return {'access': data['accessToken'], 'refresh': data['refreshToken']}
 
 @pytest.fixture
@@ -58,5 +60,10 @@ def api_auth_products(client_auth):
 
 @pytest.fixture
 def id_product(api_auth_products):
-    data = api_auth_products.get_all_products(params={'limit': 1})
+    _, data = api_auth_products.get_all_products(params={'limit': 1})
     return data['products'][0]['id']
+
+@pytest.fixture
+def total_product(api_auth_products):
+    _, data = api_auth_products.get_all_products(params={'limit': 1})
+    return data['total']
