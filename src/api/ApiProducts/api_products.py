@@ -10,5 +10,11 @@ class ApiProducts:
     def get_product_by_id(self, product_id):
         return self.client.request_json('GET', f'/products/{product_id}')
 
-    def get_all_products_categories(self, params):
-        return self.client.request_json('GET', '/products/categories', params=params)
+    def get_products_categories(self):
+        return self.client.request_json('GET', '/products/categories')
+
+    def get_products_category_list(self):
+        return self.client.request_json('GET', '/products/category-list')
+
+    def get_products_by_category(self, category):
+        return self.client.request_json('GET', f'products/category/{category}')

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 from datetime import datetime
 from typing import List, Optional
 
@@ -68,3 +68,10 @@ class AllProductsResponse(BaseModel):
     total: int = Field(ge=0)
     skip: int = Field(ge=0)
     limit: int = Field(gt=0)
+
+class ProductsCategory(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    slug: str = Field(min_length=2)
+    name: str = Field(min_length=2)
+    url: HttpUrl
