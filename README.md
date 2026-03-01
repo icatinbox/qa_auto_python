@@ -1,2 +1,2 @@
 # Test requests on DummyJSON
-- API: Pytest + Requests + allure
+- API: Pytest + Requests + allure + pydantic
