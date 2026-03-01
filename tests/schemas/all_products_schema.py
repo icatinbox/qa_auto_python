@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 
 class Dimensions(BaseModel):
