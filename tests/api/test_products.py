@@ -1,8 +1,12 @@
+import copy
+import random
+from datetime import datetime
 import pytest
 
 from tests.data_test.data import build_product_payload
 from tests.schemas.all_products_schema import AllProductsResponse, Product, ProductsCategory, AddProductResponse
 from pydantic import TypeAdapter
+
 
 def test_all_products(api_auth_products):
     response, data = api_auth_products.get_all_products(params={'limit': 0})
@@ -129,7 +133,6 @@ def test_products_by_doesnt_exist_category(api_auth_products):
 
 def test_add_product_all_fill_fields(api_auth_products, category_product):
     payload = build_product_payload(category_product)
-    print(payload)
     response, data = api_auth_products.add_new_product(payload=payload)
     result = AddProductResponse.model_validate(data)
     assert result.title == payload['title']
@@ -150,3 +153,57 @@ def test_add_product_all_fill_fields(api_auth_products, category_product):
     # _, data_new_product = api_auth_products.get_product_by_id(result.id)
     # validate_new_product = Product.model_validate(data_new_product)
     # assert data_new_product == payload
+
+    # удаление созданного обьекта в конце теста
+    # api_auth_products.delete_product(result.id)
+
+def test_delete_product(api_auth_products, id_product):
+    response, data = api_auth_products.delete_product(id_product)
+    result = Product.model_validate(data)
+    assert result.id == id_product
+    assert result.isDeleted == True
+    print(result.deletedOn.date(), datetime.now().date())
+    assert result.deletedOn.date() == datetime.now().date()
+    assert response.elapsed.total_seconds() < 1.0
+
+    # Запрос на проверку, что удаленный обьект пропал из общего списка
+    # Но в данных примерах обьекты не удаляются
+
+    # _, data_new_product = api_auth_products.get_all_products(params={'limit': 0})
+    # validate_new_product = Product.model_validate(data_new_product)
+    # assert id_product not in validate_new_product.products
+
+@pytest.mark.parametrize('field, value', (
+    ('title', 'test new title'),
+    ('price', round(random.uniform(0.10, 100), 2)),
+    ('discountPercentage', random.randint(1, 100))
+))
+def test_edit_patch_field_product(api_auth_products, id_product, field, value):
+    payload = {field: value}
+    _, old_data = api_auth_products.get_product_by_id(id_product)
+    update_data = copy.deepcopy(old_data)
+    update_data.update(payload)
+    response, data = api_auth_products.update_patch_product(id_product, payload)
+    result = AddProductResponse.model_validate(data)
+    assert getattr(result, field) == value
+    assert result.id == id_product
+    assert response.elapsed.total_seconds() < 1.0
+
+    # Запрос на проверку, что ничего не изменилось кроме изменяемого поля
+    # Но в данных примерах обьекты не изменяются
+
+    # _, new_data = api_auth_products.get_product_by_id(id_product)
+    # assert new_data == update_data
+
+def test_edit_put_field_product(api_auth_products, id_product, category_product):
+    payload = build_product_payload(category_product)
+    response, data = api_auth_products.update_patch_product(id_product)
+    result = AddProductResponse.model_validate(data)
+    assert result.id == id_product
+    assert response.elapsed.total_seconds() < 1.0
+
+    # Запрос на проверку, что ничего не изменилось кроме поле title
+    # Но в данных примерах обьекты не изменяются
+
+    # _, new_data = api_auth_products.get_product_by_id(id_product)
+    # assert new_data == payload

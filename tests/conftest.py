@@ -71,3 +71,7 @@ def category_product(api_auth_products):
     _, data = api_auth_products.get_products_category_list()
     random_id = random.randint(0, len(data) - 1)
     return data[random_id]
+
+@pytest.fixture
+def change_old_data(client, request, ):
+    _, data = api_auth_products.get_products_category_list()

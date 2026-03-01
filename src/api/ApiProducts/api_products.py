@@ -21,3 +21,12 @@ class ApiProducts:
 
     def add_new_product(self, payload=None):
         return self.client.request_json('POST', f'products/add', json=payload)
+
+    def delete_product(self, product_id):
+        return self.client.request_json('DELETE', f'products/{product_id}')
+
+    def update_patch_product(self, product_id, payload=None):
+        return self.client.request_json('PATCH', f'products/{product_id}', json=payload)
+
+    def update_put_product(self, product_id, payload=None):
+        return self.client.request_json('PUT', f'products/{product_id}', json=payload)

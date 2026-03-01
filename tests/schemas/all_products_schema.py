@@ -59,7 +59,8 @@ class Product(BaseModel):
 
     thumbnail: str
     images: List[str]
-
+    isDeleted: bool | None = None
+    deletedOn: datetime | None = None
 
 class AllProductsResponse(BaseModel):
     model_config = ConfigDict(extra='forbid')
