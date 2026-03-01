@@ -1,5 +1,7 @@
 import pytest
-from tests.schemas.all_products_schema import AllProductsResponse, Product, ProductsCategory
+
+from tests.data_test.data import build_product_payload
+from tests.schemas.all_products_schema import AllProductsResponse, Product, ProductsCategory, AddProductResponse
 from pydantic import TypeAdapter
 
 def test_all_products(api_auth_products):
@@ -108,6 +110,8 @@ def test_products_category_list(api_auth_products):
     assert all(len(title) > 2 for title in data)
     assert len(data) == len(set(data))
 
+# Фикстура делает каждый раз новый запрос, а нам достаточно одного и из него уже выбирать значения
+# подумать как оптимизировать
 @pytest.mark.parametrize('i', range(5))
 def test_products_by_category(api_auth_products, category_product, i):
     response, data = api_auth_products.get_products_by_category(category_product)
@@ -122,3 +126,27 @@ def test_products_by_doesnt_exist_category(api_auth_products):
     assert response.status_code == 200
     assert len(data['products']) == 0
     assert data['total'] == 0
+
+def test_add_product_all_fill_fields(api_auth_products, category_product):
+    payload = build_product_payload(category_product)
+    print(payload)
+    response, data = api_auth_products.add_new_product(payload=payload)
+    result = AddProductResponse.model_validate(data)
+    assert result.title == payload['title']
+    assert result.price == payload['price']
+    assert result.discountPercentage == payload['discountPercentage']
+    assert result.stock == payload['stock']
+    assert result.rating == payload['rating']
+    assert result.images == payload['images']
+    assert result.thumbnail == payload['thumbnail']
+    assert result.description == payload['description']
+    assert result.brand == payload['brand']
+    assert result.category == payload['category']
+    assert response.elapsed.total_seconds() < 1.0
+
+    # Запрос на получение обьекта по id после создания и последующая его проверка
+    # Но в данных примерах обьекты не создаются
+
+    # _, data_new_product = api_auth_products.get_product_by_id(result.id)
+    # validate_new_product = Product.model_validate(data_new_product)
+    # assert data_new_product == payload

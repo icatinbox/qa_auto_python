@@ -75,3 +75,18 @@ class ProductsCategory(BaseModel):
     slug: str = Field(min_length=2)
     name: str = Field(min_length=2)
     url: HttpUrl
+
+
+class AddProductResponse(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    id: int = Field(ge=1)
+    title: str = Field(min_length=2)
+    price: float = Field(gt=0)
+    discountPercentage: float
+    stock: int = Field(ge=0)
+    rating: float = Field(ge=0, le=5)
+    images: List[str]
+    thumbnail: str
+    description: str
+    brand: str | None
+    category: str
