@@ -1,8 +1,8 @@
 import random
 
 import pytest
-from src.api.ApiAuth.api_auth import ApiAuth
-from src.api.ApiProducts.api_products import ApiProducts
+from src.api.api_auth.api_auth import ApiAuth
+from src.api.api_products.api_products import ApiProducts
 from src.api.client import ApiClient
 
 
@@ -63,7 +63,7 @@ def api_auth_products(client_auth):
 def id_product(api_auth_products):
     _, data = api_auth_products.get_all_products(params={'limit': 0})
     ids = [data['id'] for data in data['products']]
-    random_id = random.randint(0, len(data) - 1)
+    random_id = random.randint(0, len(ids) - 1)
     return ids[random_id]
 
 @pytest.fixture
@@ -71,7 +71,3 @@ def category_product(api_auth_products):
     _, data = api_auth_products.get_products_category_list()
     random_id = random.randint(0, len(data) - 1)
     return data[random_id]
-
-@pytest.fixture
-def change_old_data(client, request, ):
-    _, data = api_auth_products.get_products_category_list()
