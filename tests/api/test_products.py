@@ -197,7 +197,7 @@ def test_edit_patch_field_product(api_auth_products, id_product, field, value):
 
 def test_edit_put_field_product(api_auth_products, id_product, category_product):
     payload = build_product_payload(category_product)
-    response, data = api_auth_products.update_patch_product(id_product)
+    response, data = api_auth_products.update_put_product(id_product, payload)
     result = AddProductResponse.model_validate(data)
     assert result.id == id_product
     assert response.elapsed.total_seconds() < 1.0
