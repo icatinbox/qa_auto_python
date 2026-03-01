@@ -1,4 +1,2 @@
-# QA automation
-
-- API: Pytest + Requests
-- UI(E2E): Pytest + Selenium
+# Test requests on DummyJSON
+- API: Pytest + Requests + allure
