@@ -1,6 +1,6 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 
 class Dimensions(BaseModel):
@@ -59,7 +59,8 @@ class Product(BaseModel):
 
     thumbnail: str
     images: List[str]
-
+    isDeleted: bool | None = None
+    deletedOn: datetime | None = None
 
 class AllProductsResponse(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -68,3 +69,25 @@ class AllProductsResponse(BaseModel):
     total: int = Field(ge=0)
     skip: int = Field(ge=0)
     limit: int = Field(gt=0)
+
+class ProductsCategory(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    slug: str = Field(min_length=2)
+    name: str = Field(min_length=2)
+    url: HttpUrl
+
+
+class AddProductResponse(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    id: int = Field(ge=1)
+    title: str = Field(min_length=2)
+    price: float = Field(gt=0)
+    discountPercentage: float
+    stock: int = Field(ge=0)
+    rating: float = Field(ge=0, le=5)
+    images: List[str]
+    thumbnail: str
+    description: str
+    brand: str | None
+    category: str
